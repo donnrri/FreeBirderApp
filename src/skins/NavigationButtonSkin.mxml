@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" width="100%" height="100%" creationComplete="init();" >
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("fb.components.buttons.NavigationButton")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="up" />
+		<s:State name="over" />
+		<s:State name="down" />
+		<s:State name="disabled" />
+	</s:states>
+
+	<fx:Script>
+		<![CDATA[
+        [Bindable]
+        private var LABEL_STROKE_WEIGHT:uint = 2;
+        [Bindable]
+        private var LABEL_LINE_OFFSET:uint = 4;
+        [Bindable]
+        private var ELLIPSE:uint = 50;
+        [Bindable]
+        private var ELLIPSE_XOFFSET:uint = 2;
+        [Bindable]
+        private var HALF_ELLIPSE:uint = 25;
+        [Bindable]
+        private var HALF_LABEL:uint;
+        [Bindable]
+        private var MIDDLE:uint;
+
+        [Bindable]
+        private var awidth:Number;
+        [Bindable]
+        private var aheight:Number;
+
+        private function init():void {
+
+
+            this.currentState = "normal";
+            awidth = this.width;
+            aheight = this.height;
+
+            addEventListener(MouseEvent.CLICK, handleMouseClick);
+            addEventListener(MouseEvent.ROLL_OVER, handleMouseOver);
+            addEventListener(MouseEvent.MOUSE_DOWN, handleMouseDown);
+            addEventListener(MouseEvent.MOUSE_OUT, handleMouseOut);
+            addEventListener(MouseEvent.MIDDLE_MOUSE_UP, handleMouseUp);
+        }
+
+        private function handleMouseDown(e:MouseEvent):void {
+
+            fadeLeft.play();
+
+        }
+
+
+        private function handleMouseUp(e:MouseEvent):void {
+
+            fadeLeft.reverse();
+
+        }
+
+        private function handleMouseClick(e:MouseEvent):void {
+
+
+        }
+
+        private function handleMouseOver(e:MouseEvent):void {
+
+            this.currentState = "down";
+            //fadeLeft.play();
+        }
+
+        private function handleMouseOut(e:MouseEvent):void {
+
+            this.currentState = "normal";
+        }
+
+        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+            // TODO Auto Generated method stub
+            super.updateDisplayList(unscaledWidth, unscaledHeight);
+
+            awidth = this.width;
+            ;
+            aheight = this.height;
+
+            HALF_LABEL = (aheight - HALF_ELLIPSE) * 0.5;
+            MIDDLE = (aheight + HALF_ELLIPSE ) * 0.5;
+            trace(awidth + " " + aheight + "  --->  " + HALF_LABEL);
+        }
+        ]]>
+	</fx:Script>
+	<!-- SkinParts
+	name=contentGroup, type=spark.components.Group, required=false
+	-->
+	<s:transitions>
+		<s:Transition>
+			<s:Fade id="fadeLeft" target="{leftStroke}" duration="300" alphaFrom="0" alphaTo="1" />
+		</s:Transition>
+	</s:transitions>
+	<s:Group left="0" right="0" top="0" bottom="0">
+	
+	<s:Rect id="rect" radiusX="30" radiusY="30" top="0" right="{this.width * 0.25}" 
+			bottom="0" left="{this.width * 0.25}" >
+		<s:fill>
+			<s:SolidColor color.normal="0x003f48" color.over="0x92D64E" 
+						  color.down="0x003f48"/>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color.normal="0xD5DFCD" color.down="0xFF9900" weight="{LABEL_STROKE_WEIGHT}"/>
+		</s:stroke>
+	</s:Rect>
+  
+	<s:Line id="rightLine" xFrom="{(this.width * 0.75) + LABEL_LINE_OFFSET }" yFrom="{MIDDLE}" xTo="{this.width - ELLIPSE_XOFFSET}" yTo="{MIDDLE}">
+		<s:stroke>
+			<s:SolidColorStroke color.normal="0xD5DFCD" color.down="0xFF9900" alpha="1" weight="3"/>
+		</s:stroke>
+	</s:Line> 
+
+	<s:Line id="leftLine"  xFrom="{ELLIPSE + LABEL_LINE_OFFSET}" yFrom="{MIDDLE}" xTo="{this.width * 0.25}" yTo="{MIDDLE}" > <!--{this.width * 0.25} -->
+		<s:stroke>
+			<s:SolidColorStroke id="leftStroke" color.normal="0xD5DFCD" color.down="0xFF9900" alpha="0.1" weight="3"/>
+		</s:stroke>
+	</s:Line> 
+	<s:Ellipse id="rightCircle" height="{ELLIPSE}" width="{ELLIPSE}" x="{ELLIPSE_XOFFSET}"  y="{HALF_LABEL}" >
+		<s:fill>
+			<s:SolidColor color="0x003f48" color.over="0x92D64E" 
+						  color.down="0x003f48"/>
+		</s:fill>
+		
+		<s:stroke>
+			<s:SolidColorStroke color.normal="0xD5DFCD" color.down="0xFF9900" weight="2"/>
+		</s:stroke>
+		
+	</s:Ellipse>
+	
+	<s:Ellipse id="leftCircle" height="{ELLIPSE}" width="{ELLIPSE}" x="{this.width - (ELLIPSE + ELLIPSE_XOFFSET)}" y="{HALF_LABEL}">
+		<s:fill>
+			<s:SolidColor color.normal="0x003f48" color.over="0x92D64E" 
+						  color.down="0x003f48"/>
+		</s:fill>
+		
+		<s:stroke>
+			<s:SolidColorStroke color.normal="0xD5DFCD" color.down="0xFF9900" weight="2"/>
+		</s:stroke>
+	</s:Ellipse> 
+	
+	<s:Label id="textLabel"  text="{hostComponent.textLabel}" width="300" height="50" textAlign="center" verticalCenter="15" horizontalCenter="0"  styleName="whiteLabel"/>
+		<s:filters>
+			<s:DropShadowFilter color.down="0xFF6600" blurX="0" blurY="10" blurY.down="10" blurX.down="10" quality="2" alpha="0.5" angle="0" distance="2"/>
+		</s:filters>
+	
+	</s:Group>
+</s:Skin>

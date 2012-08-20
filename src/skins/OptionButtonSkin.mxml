@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" xmlns:labels="fb.components.labels.*">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.SkinnableContainer")]
+	</fx:Metadata>
+	<fx:Declarations>
+		
+		<fx:Component id="optionLabels" >
+			
+			<labels:IconLabel />
+		
+		</fx:Component>
+	
+	</fx:Declarations>
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="normal" />
+		<s:State name="portrait" />
+		<s:State name="landscape" />
+	</s:states>
+	
+	<!-- SkinParts
+	name=contentGroup, type=spark.components.Group, required=false
+	-->
+	
+	<s:Label id="optionLabel"  width="100%" height="30" textAlign="left" backgroundColor="0xff9900"/>
+	
+	<!-- this is group which buttons are dynamically added to -->
+	<s:Group id="buttonGroup" width="100%" height="100%">
+		<s:layout.portrait>
+			<s:VerticalLayout gap="2" horizontalAlign="center" />
+		</s:layout.portrait>
+		<s:layout.landscape>
+			<s:HorizontalLayout gap="2" horizontalAlign="center" />
+		</s:layout.landscape>
+	
+	</s:Group>
+	
+</s:Skin>

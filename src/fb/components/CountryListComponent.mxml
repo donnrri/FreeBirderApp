@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" width="400" height="300" creationComplete="init();">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			
+			private function init():void{
+				
+				
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<s:Scroller id="contentScroller"  width="100%" height="100%" minWidth="300" minHeight="500" skinClass="skins.InitialFadeScrollerSkin"> 
+		
+		<s:DataGroup id="countryDisplay" dataProvider="{dataCollection}"  height="100%" width="100%" minWidth="300" minHeight="0" itemRenderer="fb.components.renders.CountryListRenderer"  >
+			<s:layout><s:VerticalLayout  paddingLeft="25" gap="2" horizontalAlign="left"  /></s:layout>
+		</s:DataGroup>
+		
+	</s:Scroller> 
+</s:Group>

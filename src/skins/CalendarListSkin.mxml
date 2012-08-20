@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("fb.components.list.CalendarList")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	
+	<!-- SkinParts
+	name=scroller, type=spark.components.Scroller, required=false
+	name=dropIndicator, type=mx.core.IFactory, required=false
+	name=dataGroup, type=spark.components.DataGroup, required=false
+	-->
+	<s:VGroup width="100%" height="100%" gap="5" >
+		
+		<s:Label id="optionLabel" width="100%" height="50" textAlign="center" />
+	
+		
+		<!--<s:Scroller id="contentScroller" horizontalScrollPolicy="on" skinClass="skins.InitialFadeScrollerSkin" > -->
+		
+			<s:List id="calendarList"   width="100%"  itemRenderer="fb.components.renders.CalendarListItemRenderer" useVirtualLayout="false" horizontalScrollPolicy="on" verticalScrollPolicy="off"  >
+			<s:layout><s:HorizontalLayout paddingLeft="25" gap="2" horizontalAlign="left" /></s:layout>
+		</s:List>
+		<!-- itemRenderer="fb.components.renders.OptionListItemRenderer" -->
+		<!--</s:Scroller> -->
+		
+		
+	</s:VGroup>	
+</s:Skin>

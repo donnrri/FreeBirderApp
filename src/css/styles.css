@@ -1,0 +1,25 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+s|ActionBar
+{
+	chromeColor: #003f48;
+	titleAlign: center;
+}
+
+
+.countryLabel{
+	
+	color: #000000;
+	font-size: 24;
+	
+}
+
+.whiteLabel{
+	
+	color: #FFFFFF;
+	font-size: 24;
+	font-weight: bold;
+	
+}

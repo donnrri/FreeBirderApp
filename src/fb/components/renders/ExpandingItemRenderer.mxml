@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark"  
+         height="50" height.show="selected" 
+         autoDrawBackground="false">
+    
+    <fx:Script>
+        <![CDATA[
+            import fb.effects.IntegerInterpolator;
+            
+            override public function set data(value:Object):void
+            {
+                super.data = value;
+                
+            }
+			
+			
+            
+        ]]>
+    </fx:Script>
+    
+    <fx:Style>
+        @namespace s "library://ns.adobe.com/flex/spark";
+        
+        .headerStyle
+        {
+            fontFamily : "Myriad Pro Black";
+            color : white;
+            fontSize : 20;
+        }
+    </fx:Style>
+    
+    <s:states>
+        <s:State name="normal"/>
+        <s:State name="selected"/>  
+		  
+    </s:states>
+    
+    <s:transitions>
+        <s:Transition fromState="*" toState="selected">
+            <s:Parallel>
+                <s:Fade target="{songsDisplay}" duration="300"/>
+                <s:Resize target="{this}" duration="300" interpolator="{fb.effects.IntegerInterpolator.getInstance()}"
+                          effectStart="dispatchEvent(new Event('expandEffectStart'));" 
+                          effectEnd="dispatchEvent(new Event('expandEffectEnd'));"/>
+            </s:Parallel>
+            
+        </s:Transition>
+        <s:Transition fromState="selected" toState="*">
+            <s:Parallel>
+                <s:Fade target="{songsDisplay}" duration="300"/>
+                <s:Resize target="{this}" duration="300" interpolator="{fb.effects.IntegerInterpolator.getInstance()}"/>
+            </s:Parallel>
+            
+        </s:Transition>
+    </s:transitions>
+    
+    <s:Group top="0" height="38" left="0" right="0"> 
+        <s:Rect top="0" bottom="0" left="0" right="0" radiusX="5" radiusY="5">
+            <s:fill>
+                <s:SolidColor color="0x003f48"/>
+            </s:fill>
+        </s:Rect>
+        
+           <s:Group top="5" bottom="5" left="0" right="0">
+           <!-- <s:Rect top="0" height="3" left="0" right="0">
+                <s:fill>
+                    <s:SolidColor color="white" />
+                </s:fill>
+            </s:Rect> -->
+            
+            <s:Label id="labelDisplay" left="10" right="10" verticalCenter="2" styleName="headerStyle" />
+            
+           <!-- <s:Rect bottom="0" height="3" left="0" right="0">
+                <s:fill>
+                    <s:SolidColor color="white" />
+                </s:fill>
+            </s:Rect> -->
+        </s:Group> 
+    </s:Group>
+    <s:Group id="songsDisplay" top="46" left="10" right="10" bottom="0" visible.normal="false" visible.selected="true"  >
+		<s:layout>
+			
+			<s:VerticalLayout>
+				
+			</s:VerticalLayout>
+
+	</s:Group>
+			 
+
+</s:ItemRenderer> 

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("fb.components.list.OptionsList")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	
+	<!-- SkinParts
+	name=scroller, type=spark.components.Scroller, required=false
+	name=dropIndicator, type=mx.core.IFactory, required=false
+	name=dataGroup, type=spark.components.DataGroup, required=false
+	-->
+	<s:VGroup width="100%" height="100%" gap="5" >
+		
+	<s:Label id="optionLabel" width="100%" height="30" textAlign="left"/>
+	
+
+		
+		<s:List id="optionList"   width="100%" height="100%"   horizontalScrollPolicy="off" verticalScrollPolicy="on"  >
+			<s:layout><s:VerticalLayout paddingLeft="25" paddingBottom="5" paddingTop="5" gap="2" horizontalAlign="left" clipAndEnableScrolling="true"/></s:layout>
+		</s:List>	
+	
+	</s:VGroup>	
+</s:Skin>

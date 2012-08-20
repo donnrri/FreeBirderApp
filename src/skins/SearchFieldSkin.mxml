@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:fc="http://ns.adobe.com/flashcatalyst/2009"
+		xmlns:d="http://ns.adobe.com/fxg/2008/dt"
+		xmlns:flm="http://ns.adobe.com/flame/2008"
+		xmlns:ai="http://ns.adobe.com/ai/2009"
+		fc:resizable="false">
+	<fx:Metadata>[HostComponent("spark.components.TextInput")]</fx:Metadata>
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="disabled"/>
+		<s:State name="normalWithPrompt"/>
+		<s:State name="disabledWithPrompt"/>
+	</s:states>
+	<s:Group x="0" y="0"
+			 alpha.disabled="0.5">
+		<s:Path data="M 14.465 0 L 233.396 0 C 241.385 0 247.859 6.477 247.859 14.464 C 247.859 22.452 241.385 28.928 233.396 28.928 L 14.465 28.928 C 6.477 28.928 0 22.452 0 14.464 C 0 6.477 6.477 0 14.465 0" x="0.02" y="0.338">
+			<s:fill>
+				<s:SolidColor color="#FFFFFF"/>
+			</s:fill>
+		</s:Path>
+		<s:Group alpha="0.399994" flm:isolated="false" flm:knockout="false" x="2" y="0">
+			<s:Group x="0" y="0">
+				<s:mask>
+					<s:Group ai:spare="1" x="-0.419" y="0.336">
+						<s:Rect height="7.95898" width="244.74">
+							<s:fill>
+								<s:SolidColor color="#FFFFFF"/>
+							</s:fill>
+						</s:Rect>
+					</s:Group>
+				</s:mask>
+				<s:Group x="0" y="0">
+					<s:mask>
+						<s:Group ai:spare="1" x="-0.421" y="0.338">
+							<s:Path data="M0 7.95703 244.742 7.95703C242.359 3.24121 237.482 0 231.836 0L12.9062 0C7.26172 0 2.38281 3.24121 0 7.95703" winding="nonZero">
+								<s:fill>
+									<s:SolidColor color="#FFFFFF"/>
+								</s:fill>
+							</s:Path>
+						</s:Group>
+					</s:mask>
+					<s:Group luminosityClip="true" maskType="luminosity" ai:spare="1" x="0" y="0">
+						<s:mask>
+							<s:Group x="-0.421" y="0.34">
+								<s:Rect height="7.95703" width="384.742">
+									<s:fill>
+										<s:LinearGradient rotation="90" scaleX="3.64453" x="192.376" y="-0.166504">
+											<s:GradientEntry color="#E5E5E5" ratio="0"/>
+											<s:GradientEntry ratio="1"/>
+										</s:LinearGradient>
+									</s:fill>
+								</s:Rect>
+							</s:Group>
+						</s:mask>
+						<s:Rect height="8" width="244" x="0" y="0">
+							<s:fill>
+								<s:LinearGradient rotation="90" scaleX="3.64404" x="122.373" y="-0.167969">
+									<s:GradientEntry ratio="0"/>
+									<s:GradientEntry ratio="1"/>
+								</s:LinearGradient>
+							</s:fill>
+						</s:Rect>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+		<s:Path data="M 14.387 13.075 L 10.738 9.425 C 11.453 8.444 11.885 7.25 11.885 5.942 C 11.885 2.657 9.227 0 5.947 0 C 2.66 0 0 2.657 0 5.942 C 0 9.224 2.66 11.884 5.947 11.884 C 7.074 11.884 8.117 11.552 9.016 11.006 L 12.738 14.726 L 14.387 13.075 Z M 1.727 5.942 C 1.729 3.612 3.613 1.726 5.947 1.724 C 8.275 1.726 10.16 3.612 10.162 5.942 C 10.16 8.269 8.275 10.155 5.947 10.159 C 3.613 10.155 1.729 8.269 1.727 5.942" winding="nonZero" x="7.461" y="8.438">
+			<s:fill>
+				<s:SolidColor color="#A4A9AE"/>
+			</s:fill>
+		</s:Path>
+	</s:Group>
+	<s:RichEditableText id="textDisplay" x="28" y="8" width="215" color="#999999" fontSize="14"
+						heightInLines="1" alpha.disabled="0.5"/>
+</s:Skin>
