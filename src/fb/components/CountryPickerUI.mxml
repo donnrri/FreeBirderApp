@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+
+		xmlns:custom="fb.components.layouts.*"
+
+	
+		preinitialize="init();" width="100%" height="100%" >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
+		<s:State name="portrait" />
+		<s:State name="landscape" />
+	
+	
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+        import fb.components.renders.LetterRenderer;
+        import fb.events.Dispatcher;
+        import fb.events.ItemSelectionEvent;
+        import fb.interfaces.IContinent;
+        import fb.proxies.ContinentProxy;
+        import fb.proxies.CountryProxy;
+
+        import mx.collections.ArrayCollection;
+        import mx.core.FlexGlobals;
+        import mx.events.EffectEvent;
+
+        [Bindable]
+        private var continents:ArrayCollection;
+        [Bindable]
+        private var countryCollection:ArrayCollection;
+        [Bindable]
+        private var awidth:Number;
+        [Bindable]
+        private var aheight:Number;
+
+        private static const COUNTRY_TEXT:String = "Select a Country: ";
+        private static const WHERE_LABEL:String = "When are you going: ";
+        private static const PADDING:Number = 80;
+        private static const DC_HEIGHT:uint = 100;
+        private var countryMap:Object;
+
+        private var regionCollection:ArrayCollection;
+        private var renderer:LetterRenderer;
+        private var continent:IContinent;
+        private var startValues:Vector.<Object>;
+        private var startPoints:Vector.<Point>;
+        private var angles:Vector.<Number>;
+        private var currentItem:String;
+        private var speed:Number = 0.2;
+        private var elements:uint;
+        private var topAngle:Number;
+        private var index:uint;
+        private var xOffset:Number;
+        private var yOffset:Number;
+        private var radius:Number;
+
+        private var selectedImage:String;
+
+
+        private function init():void {
+
+
+            /* var country:CountryProxy = new CountryProxy();*/
+
+            continent = new ContinentProxy();
+
+
+            continents = continent.getContinent();
+
+
+            Dispatcher.addEventListener(ItemSelectionEvent.CONTINENT_SELECTED, handleConinentSelection);
+
+            angles = new Vector.<Number>();
+
+
+        }
+
+
+        public function redraw():void {
+
+            awidth = FlexGlobals.topLevelApplication.width;
+            aheight = FlexGlobals.topLevelApplication.height;
+
+
+            if (awidth > aheight) {
+
+                if (currentState != "landscape") {
+
+                    this.currentState = "landscape";
+
+
+                }
+            }
+
+            else {
+
+                if (this.currentState != "portrait") {
+
+                    this.currentState = "portrait";
+
+
+                }
+            }
+
+
+        }
+
+
+        private function handleConinentSelection(e:ItemSelectionEvent):void {
+
+            this.removeEventListener(ItemSelectionEvent.CONTINENT_SELECTED, handleConinentSelection);
+
+            currentItem = e.itemStr;
+            selectedImage = e.iconStr;
+            countryCollection = continent.getCountry(currentItem);
+
+            //chooseCountry();
+
+            //getStartValues();
+            elements = circleDisplay.numElements;
+            getData();
+            topAngle = angles[1];
+            //trace("top angle is == " + topAngle);
+            circleDisplay.autoLayout = false;
+            setIndex(currentItem, elements);
+            circleDisplay.addEventListener(Event.ENTER_FRAME, moveElements);
+            /* 	var times:uint = index * 10;
+             var t:Timer = new Timer(50, times);
+             t.addEventListener(TimerEvent.TIMER, moveStuff);
+             t.start(); */
+        }
+
+
+        /* 	private function filterSelected(item:ContinentVO):Boolean{
+
+         trace(item.name);
+
+         return item.name.match(new RegExp(currentItem, 'i'));
+
+         } */
+
+        private function chooseCountry():void {
+
+
+            var eve:ItemSelectionEvent = new ItemSelectionEvent(ItemSelectionEvent.SELECT_COUNTRY);
+            eve.itemCollection = countryCollection;
+            Dispatcher.dispatchEvent(eve);
+            /* 	var mv:Move = new Move();
+
+
+             if(currentState == "landscape") {
+
+
+             mv.duration = 200;
+             mv.target = textLabel;
+             mv.yFrom = textLabel.y;
+             mv.yTo = 50;
+             mv.play();
+             }
+
+             if(currentState == "portrait") {
+             textLabel.width = awidth * 0.3;
+             mv.duration = 200;
+             mv.target = textLabel;
+             mv.xFrom = textLabel.y;
+             mv.xTo = 0;
+             mv.play();
+
+
+             }
+
+             //fadeList();
+             //textLabel.text = WHERE_LABEL;
+             var dc:MobileDateChooser = new MobileDateChooser();
+             dc.width = awidth;
+             dc.height = DC_HEIGHT;
+             dc.x = 0;
+             dc.y = textLabel.y + textLabel.height;;
+
+             addElement(dc); */
+        }
+
+
+        private function getStartValues():void {
+
+            /* startValues = new  Vector.<Object>();
+             elements = circleDisplay.numElements;
+
+             for (var i:Number=0;i<elements ;i++)
+             {
+
+             var element:LetterRenderer= circleDisplay.getElementAt(i) as LetterRenderer;
+             var item:Object=new Object();
+             if (element!=null)
+             {
+             item.point=new Point(element.x,element.y);
+             item.elementData=element.data;
+             item.elementRef=element;
+
+
+             }
+             else
+             {
+             item.point=new Point(0,0);
+             }
+             startValues.push(item);
+
+             } */
+
+
+            //startPoints = getStartPoints();
+
+            //var elements:uint = startPoints.length;	trace("startvalues == " +  startPoints.toString() + "  " + elements);
+
+        }
+
+
+        private function getData():void {
+
+
+            if (currentState != "landscape") {
+
+                angles = portraitLayout.angles;
+                xOffset = portraitLayout.xOffset;
+                yOffset = portraitLayout.yOffset;
+                radius = portraitLayout.radius;
+
+
+            }
+            else {
+
+
+                angles = landscapeLayout.angles;
+                xOffset = landscapeLayout.xOffset;
+                yOffset = landscapeLayout.yOffset;
+                radius = landscapeLayout.radius;
+            }
+
+        }
+
+
+        private function onEffectEnd(event:EffectEvent):void {
+            circleDisplay.autoLayout = true;
+        }
+
+
+        private function moveStuff(e:TimerEvent):void {
+
+            var fadeSpeed:Number = 1 / index;
+
+            for (var i:Number = 0; i < elements; i++) {
+
+                var element:LetterRenderer = circleDisplay.getElementAt(i) as LetterRenderer;
+
+                //trace(angles[i] + " radius =" + radius + " i= " + i + " x =" + xOffset + "  y =" + yOffset + " element = " + element.data.name);
+                element.x = xOffset + (Math.cos(angles[i]) * radius);
+                element.y = yOffset + (Math.sin(angles[i]) * radius);
+
+                if (element.data.name != currentItem) {
+
+
+                    element.alpha -= fadeSpeed;
+                }
+                angles[i] = angles[i] + speed;
+            }
+        }
+
+        private function moveElements(e:Event):void {
+
+
+            /* 	var radius:Number;
+
+             radius = (awidth / 3);
+
+             var xOffset:Number = (awidth/4) + PADDING;
+             var yOffset:Number = aheight/8; */
+            var fadeSpeed:Number = 1 / index;  // the index of the selected item divies the alpha of the element so nice fade is done;
+
+
+            for (var i:Number = 0; i < elements; i++) {
+
+                var element:LetterRenderer = circleDisplay.getElementAt(i) as LetterRenderer;
+
+                element.x = xOffset + (Math.cos(angles[i]) * radius);
+                element.y = yOffset + (Math.sin(angles[i]) * radius);
+
+
+                //xOffset +
+                //yOffset +
+
+
+                if (element.data.name == currentItem) {
+
+                    var fAngle:int = floorIt(angles[i]);
+                    var fTop:int = floorIt(topAngle);
+
+
+                    if (fAngle == fTop) {
+                        chooseCountry();
+                        circleDisplay.removeEventListener(Event.ENTER_FRAME, moveElements);
+
+                    }
+                }
+
+                else {
+
+                    element.alpha -= fadeSpeed;
+                }
+                angles[i] = angles[i] + speed;
+            }
+
+
+        }
+
+        private static function floorIt(n:Number):int {
+
+            //return n < 0 ? n + .5 == (n | 0) ? n : n - .5 : n + .5;
+            n.toFixed(0);
+            return n;
+        }
+
+
+        private function setIndex(name:String, elements:uint):void {
+
+            for (var i:Number = 0; i < elements; i++) {
+
+                var element:LetterRenderer = circleDisplay.getElementAt(i) as LetterRenderer;
+
+                if (element.data.name == name) {
+
+                    index = i;
+                }
+
+
+            }
+        }
+
+        override protected function createChildren():void {
+            super.createChildren();
+        }
+        ]]>
+	</fx:Script>
+	
+
+
+	<s:Spacer width.portrait="100%" height.portrait="100" width.landscape="0" height.landscape="0"/>
+	<s:Label id="textLabel" text="Where are you going ? " textAlign="center" width.portrait="100%" width.landscape="300" height="100%" x.portrait="0" x.landscape="0" y.portrait="20" y.landscape="{(aheight/2) - 25}" styleName="countryLabel" />		
+	<s:Spacer width="100%" height="50" />
+
+     <s:DataGroup id="circleDisplay" dataProvider="{continents}" clipAndEnableScrolling="false" y.portrait="{(aheight/10) * 2.5}" y.landscape="{(aheight/10) * 2.5}" width="100%" height="50%" itemRenderer="fb.components.renders.LetterRenderer" >
+	<s:layout.portrait><custom:PortriatCircleLayout id="portraitLayout"  /></s:layout.portrait>
+	<s:layout.landscape><custom:LandscapeCircleLayout id="landscapeLayout"   /></s:layout.landscape> 
+	</s:DataGroup>
+	<s:TextInput id="searchField" skinClass="skins.SearchFieldSkin" width="200" height="60" borderColor="0xA4A9AE" focusAlpha="0" x="{(awidth/2)- 100}"  y="{(aheight/2) - 30}" />
+</s:Group>
+
+
