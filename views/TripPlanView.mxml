@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:custom="fb.components.layouts.*"
+        xmlns:datez="com.purplemedia.components.date.*"
+		xmlns:sb="fb.components.sideBars.*"
+		xmlns:sl="fb.components.list.*"
+		xmlns:webview="fb.components.webview.*"
+		title="TripPlanView"
+		creationComplete="init();" 
+		resize="resizeHandler(event);" preinitialize="makeCalls()"
+		>
+	<fx:Declarations>
+		
+		<s:State name="portrait" />
+		<s:State name="landscape" />
+		<s:State name="dates" />
+		
+	
+			<s:SkinnablePopUpContainer id="alert" backgroundAlpha="0.5" backgroundColor="0x000000">
+				<s:Panel title="Alert" horizontalCenter="0" verticalCenter="0" width="90%">
+					<s:HGroup width="100%" bottom="0">
+						<s:Label id="alertLabel" text="{'Sorry: Currently no information is avaliable for ' + country}" width="100%" height="100" />
+						<s:Button label="Close" click="alert.close()" width="50%"/>
+						<s:Button label="OK" click="alert.close()" width="50%" styleName="dialogDefaultButton"/>
+					</s:HGroup>
+				</s:Panel>
+			</s:SkinnablePopUpContainer>
+		
+		<s:Move id="moveIn"  duration="300"  xFrom="{awidth * 2}" xTo="0" target="{webView}"/>
+		<s:Move id="moveOut"  duration="300"  xFrom="0" xTo="{awidth * 2}" target="{webView}"/>
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import fb.api.commands.ICommand;
+			import fb.api.invoker.CommandInvoker;
+			import fb.components.date.DateChooser;
+			import fb.components.renders.AccomodationListItemRenderer;
+			import fb.components.renders.CalendarListItemRenderer;
+			import fb.components.renders.MailListItemRenderer;
+			import fb.components.renders.MuseumListItemRenderer;
+			import fb.components.renders.ObservatoryListItemRenderer;
+			import fb.components.renders.ReserveListItemRenderer;
+			import fb.components.renders.TourListItemRenderer;
+			import fb.events.CalendarEvent;
+			import fb.events.Dispatcher;
+			import fb.events.FBErrorEvent;
+			import fb.events.GroupDataEvent;
+			import fb.events.ItemSelectionEvent;
+			import fb.events.NavigationEvent;
+			import fb.events.OpenLinkEvent;
+			import fb.events.OptionsEvent;
+			import fb.events.ServiceEvent;
+			import fb.model.AccomodationVO;
+			import fb.model.DayVO;
+			import fb.model.DestinationVO;
+			import fb.model.Itinerary;
+			import fb.model.ListVO;
+			import fb.utils.StringUtils;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.effects.Fade;
+			import mx.effects.Move;
+			import mx.events.EffectEvent;
+			import mx.events.ResizeEvent;
+			
+			
+			[Bindable] private var dataCollection:ArrayCollection;
+			[Bindable] private var country:String;
+			[Bindable] private var colNumber:int;
+			[Bindable] private var colWidth:int;
+			[Bindable] private var awidth:Number;
+			[Bindable] private var aheight:Number;
+			[Bindable] private var buttonNames:ArrayCollection;
+			
+			private static const ACCOMODATION:String = "accomodation";
+			private static const TOURS:String = "tours";
+			private static const RESERVES:String = "reserves";
+			private static const OBSERVATORIES:String = "observatories";
+			private static const MAILING_LIST:String = "mailing list";
+			private static const MUSEUMS:String = "museum";
+			private static const FESTIVAL:String = "festival";
+			
+			
+		
+			private var hasMailingList:Boolean;
+			private var hasAccomodation:Boolean;
+			private var hasTours:Boolean;
+			private var hasMuseums:Boolean;
+			private var hasObservatories:Boolean;
+			private var hasReserves:Boolean;
+			private var hasFestivals:Boolean;
+			
+			private var categories:Vector.<String>;
+			private var listData:Array;
+			private var tempButtonNames:ArrayCollection;
+			private var listVector:Vector.<ListVO>;
+			private var accomodationVec:Vector.<AccomodationVO>;
+			private var optionListDataProvider:ArrayCollection;
+			
+			private var startValues:Vector.<Number>;
+            private var fd:Fade = new Fade();
+			private var command:ICommand;
+			
+			private var currentOptionType:String;
+			private var currentOptionTitle:String;
+			private var itemSelected:Boolean = false;
+			private var webVisible:Boolean = false;
+			
+			private function init():void{
+				
+				Itinerary.getInstance().country = country
+				buttonNames = new ArrayCollection()
+				tempButtonNames = new ArrayCollection()
+				setData();
+				
+				this.currentState = "dates";
+				mobileDC.addEventListener(NavigationEvent.FADE_CALENDAR, removeCalendar);
+				addEventListener(NavigationEvent.FADE_CALENDAR, handleCalendarFade);
+				Dispatcher.addEventListener(GroupDataEvent.LIST_DATA, handleListData);
+				//Dispatcher.addEventListener(ItemSelectionEvent.TRIP_ITEM_SELECTED, handleItemSelected);
+				Dispatcher.addEventListener(OpenLinkEvent.OPEN_LINK, handleOpenLink);
+				Dispatcher.addEventListener(OptionsEvent.DAY_INFORMATION, handleDayInformation);
+				/* Dispatcher.addEventListener(ServiceEvent.ACCOMODATION, handleAccomodation);
+				Dispatcher.addEventListener(ServiceEvent.TRIPS, handleTrips);
+				Dispatcher.addEventListener(ServiceEvent.VISIT, handleVisit);
+				Dispatcher.addEventListener(ServiceEvent.MEET, handleMeet); */
+				hasMailingList = false;
+				hasAccomodation = false;
+				hasTours = false;
+				hasMuseums = false;
+				hasObservatories = false;
+				hasReserves = false;
+				hasFestivals = false;
+				
+				listData = new Array();
+				listVector = new Vector.<ListVO>();
+			}
+			
+			
+			
+			private function removeCalendar(e:NavigationEvent):void{
+				
+			
+			fd.duration = 200;
+			fd.alphaFrom = 1;
+			fd.alphaTo 0;
+			fd.targets = [mobileDC, whenLabel];
+			fd.addEventListener(EffectEvent.EFFECT_END,onEffectEnd);
+			fd.play();
+			
+			holder.removeElement(mobileDC);
+			
+			}
+			
+			
+			private function onEffectEnd(e:EffectEvent):void{
+				
+				options.visible = true;
+				optionList.visible = true;
+				calendarList.visible = true;
+			}
+				
+				
+			private function GoBack(e:MouseEvent):void{
+				
+				if(!webVisible){
+					
+				saveData();
+				var eve:NavigationEvent = new NavigationEvent(NavigationEvent.CHANGE_VIEW);
+				eve.view = StringUtils.COUNTRY_VIEW;
+				Dispatcher.dispatch(eve); 
+			
+				}
+				
+				else{
+					
+					moveOut.play(); webVisible = false; webView.source = "";
+				}
+			}
+			
+			
+			private function saveData():void{
+				
+				//save the data;
+			}
+			
+			private function setData():void{
+				
+				dataCollection = new ArrayCollection(StringUtils.tripArray);
+				
+				
+				if(hasFestivals){
+					
+					/* show list of current events */
+					
+					
+				}
+				
+				colNumber = dataCollection.length * 0.5;
+				
+			}
+			
+			private function resizeHandler(e:ResizeEvent):void{
+				
+				awidth = FlexGlobals.topLevelApplication.width;
+				aheight = FlexGlobals.topLevelApplication.height;
+				
+				
+				if(awidth > aheight){
+					
+					currentState = "landscape";
+					
+				}
+					
+				else{
+					
+					currentState = "portrait";
+					
+				}
+			}
+			
+			private function showSelectedItems(e:ItemSelectionEvent):void{
+				
+				trace("item selected = " + e.itemStr);
+				
+				
+			}
+			
+			
+			private function handleCalendarFade(e:NavigationEvent):void{
+				
+				trace("fade calendar " );
+			}
+			
+		
+			private function handleAccomodation(e:ServiceEvent):void{
+				
+				
+			}
+			
+	
+			
+			private function makeCalls():void{
+				
+				Dispatcher.addEventListener(ServiceEvent.CATEGORIES_SUCCESS, handleCategoriesSuccess);
+				Dispatcher.addEventListener(ServiceEvent.LAST_RESULT, handleLastResult);
+				
+				setCommand();
+			}
+			
+			
+			private function setCommand():void{
+				
+				var categories = StringUtils.commandVector;
+				var catLength:int = categories.length;
+				for(var i:int =0; i < catLength; i++){
+					
+					command = CommandInvoker.invokeCommand(categories[i]);
+					command.execute();
+				}
+			}
+			
+			
+			private function handleCategoriesSuccess(e:ServiceEvent):void{
+				
+				var cat:String = e.category;
+				var data:ArrayCollection = new ArrayCollection();
+				var itinerary:Itinerary = Itinerary.getInstance();
+				
+				switch(cat){
+					
+					case TOURS:
+						
+						hasTours = true;
+						data = e.tourData;
+						itinerary.rendererDictionary[data[0]] = new ClassFactory(TourListItemRenderer);
+						makeList("Tour", "assets/dpi160/icons/71-compass.png", data);
+						
+						break;
+					
+					case ACCOMODATION:
+						
+						hasAccomodation = true;
+						data = e.accomodationData;
+						itinerary.rendererDictionary[data[0]] = new ClassFactory(AccomodationListItemRenderer);
+						makeList("Accomodation", "assets/dpi160/icons/home.png", data);
+						
+						break;
+					
+					case OBSERVATORIES:
+						
+						hasObservatories = true;
+						data = e.observatoriesData;
+						itinerary.rendererDictionary[data[0]] = new ClassFactory(ObservatoryListItemRenderer);
+						makeList("Observatories", "assets/dpi160/icons/camera_small.png", data);
+						break;
+					
+					case RESERVES:
+						
+						hasReserves = true;
+						data = e.reserveData;
+						itinerary.rendererDictionary[data[0]] = new ClassFactory(ReserveListItemRenderer);
+						makeList("Reserves", "assets/dpi160/icons/23-bird.png", data);
+						break;
+					
+					case MUSEUMS:
+						
+						hasMuseums = true;
+						data = e.museumData;
+						itinerary.rendererDictionary[data[0]] = new ClassFactory(MuseumListItemRenderer);
+						makeList("Museum", "assets/dpi160/icons/bookmark_small.png", data);
+						break;
+					
+					case MAILING_LIST:
+						
+						hasMailingList = true;
+						data = e.mailingData;
+						if(data.length > 0){
+							
+							itinerary.rendererDictionary[data[0]] = new ClassFactory(MailListItemRenderer);
+							makeList("Meet People", "assets/dpi160/icons/handshake_small.png", data);
+						}
+
+						break;
+					
+					case FESTIVAL:
+						
+						hasFestivals = true;
+						data = e.festivalData;
+						itinerary.rendererDictionary[data[0]] = new ClassFactory(AccomodationListItemRenderer);
+						makeList("Events", "assets/dpi160/icons/smile_small.png", data);
+						break;
+				}
+			}
+			
+			
+			private function makeList(type:String, path:String, data:ArrayCollection):void{
+			
+				var listVO:ListVO = new ListVO();
+				listVO.name = type;
+				listVO.path = path;
+				listVO.data = data;
+				listVector.push(listVO);
+				tempButtonNames.addItem(listVO);
+				Dispatcher.addEventListener(OptionsEvent.ITEM_SELECTED, handleSelectedItem);
+				
+				
+			}
+			
+	private function handleLastResult(e:ServiceEvent):void{
+		
+		buttonNames = tempButtonNames;
+		options.data = buttonNames;
+		
+		
+	}
+			
+			private function handleListData(e:GroupDataEvent):void{
+				
+				calendarList.setList(e.listData);
+			Dispatcher.addEventListener(OptionsEvent.SELECTED_ITEM, handleSelectedOption);
+				setOptionsList();
+			}
+			
+			private function setOptionsList():void{
+				
+				// remove first ListVO from Vector
+				if(listVector.length > 0){
+					
+					var type:String = listVector[0].name;
+					optionList.setList(listVector[0].data);
+					optionList.setLabel(type);
+					
+				}
+				
+				else{
+					trace("open the alert box");
+					openAlert();
+				}
+		}
+			
+		
+			protected function handleSelectedItem(e:OptionsEvent):void{
+				
+				var type:String = e.item;
+				
+				setDataProvider(type);
+			}
+	
+			
+			private function setDataProvider(type:String):void{
+				
+				var limit:int = listVector.length;
+				
+				for (var i:int = 0; i< limit; ++i){
+					
+					if(type == listVector[i].name){
+						
+						optionList.setList(listVector[i].data);	
+						optionList.setLabel(type);
+					}
+				}
+			}
+			
+			
+			protected function openAlert():void
+			{
+				alert.open(this, false);
+				updateAlertPosition();
+				
+				this.addEventListener(ResizeEvent.RESIZE, updateAlertPosition);
+			}
+			
+			protected function updateAlertPosition(event:Event=null):void
+			{
+				if (alert.isOpen)
+				{
+					alert.width = systemManager.screen.width;
+					alert.height = systemManager.screen.height;
+				}
+			}
+			
+			private function handleSelectedOption(e:OptionsEvent):void{
+				
+				currentOptionType = e.itemType;
+				currentOptionTitle = e.title;
+				itemSelected= true;  
+				Dispatcher.addEventListener(CalendarEvent.ADD_ITEM, handleAddItem);
+				//trace("OPTION -> SELECTED " );
+			}
+			
+			private function handleAddItem(e:CalendarEvent):void{
+				
+				var index:int = e.index;
+				var startIndex:int;
+				var ac:AccomodationVO = new AccomodationVO();
+				var classStr:String = getClassString(ac);  //trace("class string ----> " + classStr);
+				if(itemSelected){
+				//Dispatcher.removeEventListener(CalendarEvent.ADD_ITEM, handleAddItem);
+				calendarList.setCalendar(index, currentOptionType, currentOptionTitle);
+				startIndex = index;
+				//trace("ITEMSELECTED == " + itemSelected);trace("Calendar SET -->")
+				itemSelected = false;
+				}
+				else{
+					if(classStr == currentOptionType){
+					calendarList.setCalendarRange(startIndex, index, currentOptionType, currentOptionTitle);
+					//trace("IEMsSELECTED == " + itemSelected + " new index = " + index + currentOptionType + " " + classStr + " and type = " + currentOptionType);
+					}
+				}
+				
+				
+				
+				//trace("the index is --> " + index + " item = " + currentOptionTitle);
+				
+				//var calendarData:ArrayCollection  = calendarList.getList();
+				
+			    //reSetOptions();
+				
+				
+			}
+			private  function getClass(obj:Object):Class {    
+				
+				/*
+				This is great for checking the type of an object. For example, if you have an object myObj1
+				and you want to confirm that it is of the same type as myObj2 you can write:
+				
+				if (myObj1 is getClass(myObj2)) {   trace("These objects are of the same class!");  }
+				*/
+				return Class(getDefinitionByName(getQualifiedClassName(obj)));  
+			
+			}
+			
+			
+			private  function getClassString(obj:Object):String {    
+				
+				/*
+				This is great for checking the type of an object. For example, if you have an object myObj1
+				and you want to confirm that it is of the same type as myObj2 you can write:
+				
+				if (myObj1 is getClass(myObj2)) {   trace("These objects are of the same class!");  }
+				*/
+				return String(Class(getDefinitionByName(getQualifiedClassName(obj))));  
+				
+			}
+			private function reSetOptions():void{
+				
+				currentOptionTitle = "";
+				currentOptionType = "";
+			}
+			
+			private function handleOpenLink(e:OpenLinkEvent):void{
+				trace(e.path);
+				/* var move:Move = new Move();
+				move.target = [webView];
+				move.duration = 200;
+				move.xFrom = webView.x;
+				move.xTo = 0;
+				move.play(); */
+				
+				webView.source = e.path;
+				moveIn.play();
+				webVisible = true;
+				
+			}
+			
+			
+          private function  handleDayInformation(e:OptionsEvent):void{
+			  
+			  trace("message recieved " + e.dayObject.accomodation);
+		  }
+		]]>
+	</fx:Script>
+	
+		<!-- Define a Parallel effect as the top-level effect.-->
+		
+			<!-- Define a Move and Resize effect.-->
+	
+		
+
+	
+<s:Group id="holder" width="100%" height="100%" >
+	<s:layout>
+		<s:VerticalLayout gap="2" horizontalAlign="center" />
+	</s:layout>
+
+		<s:Spacer width="100%" height="10" />
+	
+	<s:Label id="infoLabel" text="Chosen Location: {country}" width="100%" height="50" textAlign="center" styleName="countryLabel" backgroundColor="0x55ccff" />
+	
+	<s:Spacer width="100%" height.landscape="50" />
+	<s:Label id="whenLabel" text="When do you want to go ?" width="100%" height="40" textAlign="center" styleName="countryLabel" />
+	<s:Spacer width="100%" height.landscape="50" />
+	
+	<datez:MobileDateChooser id="mobileDC" width="100%" height="50"  />
+	<!-- <s:DataGroup id="categories"  width="80%" height="100%" dataProvider="{dataCollection}" itemRenderer="fb.components.renders.TripItemRenderer" visible="false" > 
+
+		<s:layout.portrait><custom:PortriatCircleLayout  /></s:layout.portrait>
+		<s:layout.landscape><custom:SmallLandscapeLayout /></s:layout.landscape>
+      
+	</s:DataGroup> -->
+
+		
+		
+		
+	
+	<s:HGroup id="listHolder" paddingTop="2" paddingBottom="2" horizontalAlign="center" gap="1" height="{aheight * 0.5}" width="{awidth}" >
+		
+		<sb:OptionSideBar id="options" data="{buttonNames}" width="{listHolder.width * 0.25}" height="{listHolder.height}" visible="false"  />
+	    <sl:OptionsList id="optionList" width="{listHolder.width * 0.75}" height="{listHolder.height}"  visible="false" />
+		
+	</s:HGroup>	
+		<sl:CalendarList id="calendarList" width="100%" height="25%" y="{aheight - (aheight * 0.75)}"  visible="false" />
+</s:Group>
+	<webview:WebView id="webView" x="{awidth * 2}" y="5"  width="100%" height="100%" source="{data}" />	
+
+	<s:navigationContent>
+		<s:Button label="Back" click="GoBack(event);"/>
+	</s:navigationContent>
+	<s:actionContent>
+		<s:Button label="Report" />
+	</s:actionContent>
+</s:View>

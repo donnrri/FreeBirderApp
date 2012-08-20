@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Plan your Trip"
+		resize="handleResize(event)" 
+		creationComplete="init();"
+		width="100%"
+		height="100%" 
+		>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
+		<s:State name="portrait" />
+		<s:State name="landscape" />
+	
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import fb.components.renders.CountryListRenderer;
+			import fb.events.Dispatcher;
+			import fb.events.GroupDataEvent;
+			import fb.events.ItemSelectionEvent;
+			import fb.events.NavigationEvent;
+			import fb.utils.StringUtils;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			import spark.components.supportClasses.ItemRenderer;
+			import spark.effects.Fade;
+			import spark.effects.Move;
+			import spark.transitions.CrossFadeViewTransition;
+			
+			[Bindable] private var dataCollection:ArrayCollection;
+			[Bindable] private var awidth:Number;
+			
+			private var aheight:Number;
+			private var elementHeight:uint = StringUtils.COUNTRY_ITEM_HEIGHT;
+			private var pointsVec:Vector.<Point>;
+			private var topPoint:Point;
+		    private var elements:uint;
+			private var selectedItem:String;
+			
+		private function init():void{
+				
+				
+				dataCollection = new ArrayCollection();
+				dataCollection = data as ArrayCollection;
+			
+				
+				Dispatcher.addEventListener(GroupDataEvent.CLOSE_DATA, closeData);
+				Dispatcher.addEventListener(GroupDataEvent.OPEN_DATA, openData);
+				pointsVec = new Vector.<Point>();
+				getPoints();
+				topPoint  = pointsVec[0];
+			}
+			
+		protected function openData(e:GroupDataEvent):void{
+			
+	      var childNumber:uint = countryDisplay.numChildren - 1;
+		  var position:uint  = e.position;
+		  var currentHeight:Number = this.height;
+		  
+		  var scrollTo:uint = currentHeight * 1.25;
+		  if(position == childNumber){
+			  
+			  countryDisplay.verticalScrollPosition = scrollTo;
+			  
+		  }
+		   
+		}
+			
+			private function closeData(e:GroupDataEvent):void{
+				
+				trace("found here");
+			}
+			private function handleResize(e:ResizeEvent):void{
+				
+				awidth = FlexGlobals.topLevelApplication.width;
+				aheight = FlexGlobals.topLevelApplication.height;
+				
+				
+				if(awidth > aheight){
+					
+					currentState = "landscape";
+					
+				}
+					
+				else{
+					
+					currentState = "portrait";
+					
+				}
+				
+			}
+			
+			private function GoBack(e:MouseEvent):void{
+				
+			
+				saveData();
+				var eve:NavigationEvent = new NavigationEvent(NavigationEvent.CHANGE_VIEW);
+				eve.view = StringUtils.CONTINENT_VIEW;
+				Dispatcher.dispatch(eve);
+			}
+			
+			private function saveData():void{
+				
+				
+			}
+			
+       
+			
+			public function moveList(item:String):void{
+				
+				selectedItem = item;
+				trace("in view " + item);
+				getPoints();
+				 
+				
+				 var selectedPoint:Point = getSelectedPoint();
+				trace(selectedPoint + " selectedPoint");
+				
+				moveListItems(topPoint, selectedPoint);
+				
+			}
+			
+			private function getPoints():void{
+				
+				elements  = countryDisplay.numElements;
+				
+				
+				for (var i:Number=0;i<elements;i++)
+				{
+				var element:CountryListRenderer = countryDisplay.getElementAt(i) as CountryListRenderer;
+				
+				var pt:Point;
+				//trace("i");
+					if (element!=null)
+						{
+						pt = new Point(element.x,element.y);
+					
+				
+						}
+					else
+						{
+						pt =new Point(0,0);
+						}
+				pointsVec.push(pt);
+				}
+			}
+			
+			private function getSelectedPoint():Point{
+				
+				elements  = countryDisplay.numElements;
+				
+				
+				for (var i:Number=0;i<elements;i++)
+				{
+					var element:CountryListRenderer = countryDisplay.getElementAt(i) as CountryListRenderer;
+					
+					var pt:Point;
+					//trace("i");
+					if (element!=null)
+					{
+						if(element.data.name == selectedItem){
+							pt = new Point(element.x,element.y);
+						}
+					}
+				}
+				
+				return pt;
+			}
+			
+			private function moveListItems(startPoint:Point, selectedPoint:Point):void{
+				
+				countryDisplay.autoLayout = false;
+				var distance:Number = getItemHeight();
+				for (var i:Number=0;i<elements;i++)
+				{	
+					var element:CountryListRenderer=countryDisplay.getElementAt(i) as CountryListRenderer;
+					
+						if(element.data.name == selectedItem){
+						
+						//	trace("move " + startPoint + " " + selectedPoint)
+							var move:spark.effects.Move = new Move();
+							move.duration=1000;
+					//var start:Point=findStartValue(element.data);
+					        move.target = element;
+							move.yFrom=selectedPoint.y;
+							move.yTo=startPoint.y;
+							move.play();
+						
+						}
+						else {
+							
+							if(element.y < selectedPoint.y){
+								 	
+									var move:spark.effects.Move = new Move();
+									move.duration=1000;
+									//var start:Point=findStartValue(element.data);
+									move.target = element;
+									move.yFrom=element.y;
+									move.yTo = element.y + distance;
+									move.play();
+							}
+						}
+				}
+				
+				countryDisplay.verticalScrollPosition = 0;
+			}
+			
+			
+			private function getItemHeight():Number{
+				
+				var returnNumber:Number = pointsVec[1].y - pointsVec[0].y;
+				
+				return returnNumber;
+			}
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout   horizontalAlign="left" />
+	</s:layout>
+
+	
+	<s:Spacer width="100%" height="20" />
+	<s:Label id="textLabel" text="Select a country: " textAlign="center"  width.portrait="{awidth}" width.landscape="{awidth * 0.5}" styleName="countryLabel"/>		
+	<s:Spacer width="100%" height="50" />
+	
+	
+	<s:Scroller id="contentScroller"  width="100%" height="100%" minWidth="300" minHeight="500" skinClass="skins.InitialFadeScrollerSkin"> 
+
+		<s:DataGroup id="countryDisplay" dataProvider="{dataCollection}"  height="100%" width="100%" minWidth="300" minHeight="0" itemRenderer="fb.components.renders.CountryListRenderer"  >
+		<s:layout><s:VerticalLayout  paddingLeft="25" gap="2" horizontalAlign="left"  /></s:layout>
+		</s:DataGroup>
+	
+	</s:Scroller> 
+
+	<s:navigationContent>
+		<s:Button label="Back" click="GoBack(event);"/>
+	</s:navigationContent>
+	<s:actionContent>
+		<s:Button label="Report" />
+	</s:actionContent>
+</s:View>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:lbl="fb.components.buttons.*"
+		xmlns:gr="assets.icons.*" title="FreeBirder" 
+		destructionPolicy="never"
+		creationComplete="init();"  
+		>
+
+		<fx:Declarations>
+			<s:MultiDPIBitmapSource id="fbIcon"
+									source160dpi="@Embed('assets/icons/low_res_fb.png')"
+									source240dpi="@Embed('assets/icons/low_res_fb.png')"
+									source320dpi="@Embed('assets/icons/low_res_fb.png')"/>
+			
+			<s:State name="portrait" />
+			<s:State name="landscape" />
+			
+		</fx:Declarations>
+	
+	<fx:Style source="css/styles.css" />
+	
+	<fx:Script>
+		<![CDATA[
+			
+			
+			import mx.core.FlexGlobals;
+			import mx.events.ResizeEvent;
+			
+			
+			[Bindable] private var awidth:Number;
+			[Bindable] private var aheight:Number;
+			
+			
+			private function init():void{
+				
+				this.addEventListener(Event.ADDED_TO_STAGE, handleAddedToStage);
+			}
+			
+			
+			private function setState():void{
+				
+				
+			}
+			
+			private function handleAddedToStage(e:Event):void{
+				
+				this.addEventListener(Event.RESIZE, handleResize);
+				/*
+				Note listening for resize ids more reliable than orientation change event
+				StageOrientationEvent.ORIENTATION_CHANGE,
+				*/
+			}
+			
+			private function handleResize(e:Event):void{
+				
+				//awidth = FlexGlobals.topLevelApplication.width;
+				//aheight = FlexGlobals.topLevelApplication.height;
+				
+				
+				if(awidth > aheight){
+					
+					currentState = "landscape";
+				}
+				
+				else{
+					
+					currentState = "portrait";
+					
+				}
+			
+			}
+				
+			
+			private function gotoPlanner(e:MouseEvent):void{
+			
+
+			navigator.pushView(views.PortraitPlannerView);
+			
+			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+			{
+				// TODO Auto Generated method stub
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				
+				awidth = unscaledWidth;
+				aheight = unscaledHeight;
+			}
+			
+           
+			
+		]]>
+	</fx:Script>
+	
+
+	
+	<s:BitmapImage source="{fbIcon}" width="125" height="125" horizontalCenter.portrait="0" left.landscape="20" verticalCenter.landscape="0" top="50" /> 
+	
+	<s:Group top.portrait="200" verticalCenter.landscape="0" horizontalCenter="0">
+		<s:layout >
+			
+			<s:VerticalLayout/>
+			
+		</s:layout>
+		
+			<s:Button id="plan" width="200" height="50" label="Plan your trip" click="gotoPlanner(event)"  />
+			<s:Button id="write" width="200" height="50" label="Write a report" />
+			<s:Button id="share" width="200" height="50" label="Share" /> 
+		<!--<lbl:NavigationButton labelText="Plan your trip"  width="{awidth}" height="50"  /> -->
+	</s:Group>	
+		
+</s:View>

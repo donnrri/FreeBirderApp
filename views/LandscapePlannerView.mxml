@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:cmap="fb.components.*"
+		title="Plan you trip" 
+		creationComplete="init();"
+		resize="handleResize(event)"
+		>
+	
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
+		<s:State name="portrait" />
+		<s:State name="landscape" />
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			import spark.transitions.CrossFadeViewTransition;
+			
+			
+			private var awidth:Number;
+			private var aheight:Number;
+			
+			private function init():void{
+				trace(this.currentState + " current state");
+				
+			}
+			
+			private function saveData():void{
+				
+				/*
+				Here we want to store any draft plans 
+				*/
+				
+				
+				trace("its started");
+				
+			}
+			
+			
+			
+			private function GoHome(e:MouseEvent):void{
+				/*
+				choose a fade transion back to the home page
+				
+				Others:
+				var flipTrans:FlipViewTransition = new FlipViewTransition();
+				flipTrans.direction = ViewTransitionDirection.UP;
+				flipTrans.mode = FlipViewTransitionMode.CUBE; //or CARD mode
+				navigator.pushView(SampleZoom,null,null,flipTrans);
+				
+				var zoomTrans:ZoomViewTransition = new ZoomViewTransition();
+				zoomTrans.direction = ViewTransitionDirection.RIGHT;
+				zoomTrans.mode = ZoomViewTransitionMode.IN; //or OUT mode
+				navigator.popToFirstView(zoomTrans);
+				
+				var slideTrans:SlideViewTransition = new SlideViewTransition();
+				slideTrans.direction = ViewTransitionDirection.DOWN;
+				slideTrans.mode = SlideViewTransitionMode.UNCOVER;  //or COVER and PUSH modes
+				navigator.pushView(SampleZoom,null,null,slideTrans);
+				
+				var fadeTrans:CrossFadeViewTransition = new CrossFadeViewTransition();
+				fadeTrans.direction = ViewTransitionDirection.LEFT;
+				// no modes are available for CrossFadeViewTransition
+				navigator.pushView(SampleZoom,null,null,fadeTrans);
+				*/
+				//save any draft work
+				saveData();
+				
+				var fadeTrans:CrossFadeViewTransition= new CrossFadeViewTransition();
+				navigator.replaceView(views.FatBirderTestHomeView,null,null,fadeTrans);
+			}
+			
+			
+			private function handleAddedToStage(e:Event):void{
+				
+				this.addEventListener(Event.RESIZE, handleResize);
+				/*
+				Note listening for resize ids more reliable than orientation change event
+				StageOrientationEvent.ORIENTATION_CHANGE,
+				*/
+			}
+			
+			
+			private function handleResize(e:ResizeEvent):void{
+				
+				awidth = FlexGlobals.topLevelApplication.width;
+				aheight = FlexGlobals.topLevelApplication.height;
+				
+				
+				if(awidth > aheight){
+					
+					currentState = "landscape";
+					
+				}
+					
+				else{
+					
+					currentState = "portrait";
+					
+				}
+				
+				trace("pushview");
+				
+				countryPicker.redraw();
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	
+	<s:navigationContent>
+		<s:Button label="Start" click="GoHome(event);"/>
+	</s:navigationContent>
+	<s:actionContent>
+		<s:Button label="Report" />
+	</s:actionContent>
+	
+	
+	<cmap:CountryPickerUI id="countryPicker" />
+	
+</s:View>
